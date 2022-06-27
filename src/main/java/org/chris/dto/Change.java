@@ -11,7 +11,7 @@ public class Change {
 
         private final BigDecimal currencyValue;
 
-        private Denomination(BigDecimal currencyValue)
+        Denomination(BigDecimal currencyValue)
         {
             this.currencyValue = currencyValue;
         }

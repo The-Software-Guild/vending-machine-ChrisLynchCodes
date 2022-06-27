@@ -9,15 +9,13 @@ import java.util.List;
 public interface VendingMachineServiceLayer {
 
     //This is now the Data Access API for the application - Sitting in front of the DAO
-    void addItemToVendingMachine(Item item) throws ItemDuplicateIdException, ItemDataValidationException, ItemPersistenceException;
 
-    void buyItemFromVendingMachine(String itemId, BigDecimal userBallance) throws ItemPersistenceException, ItemNoItemInventoryException, VendingMachineInsufficientFundsException;
+    BigDecimal addToSessionBalance(BigDecimal amount) throws ItemPersistenceException;
 
-    //remove item from vending machine
-    void removeItemFromVendingMachine(String itemId) throws ItemPersistenceException;
+    BigDecimal getSessionBalance();
 
-    //update item in vending machine
-    void updateItemInVendingMachine(Item item) throws ItemPersistenceException;
+    String buyItemFromVendingMachine(String itemId) throws ItemPersistenceException, ItemNoItemInventoryException, VendingMachineInsufficientFundsException;
+
 
     //get all items in vending machine
     List<Item> getAllItems() throws ItemPersistenceException;

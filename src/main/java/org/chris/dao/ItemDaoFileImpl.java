@@ -1,9 +1,9 @@
 package org.chris.dao;
 
 import org.chris.dto.Item;
-import org.chris.service.ItemNoItemInventoryException;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class ItemDaoFileImpl implements ItemDao {
@@ -17,7 +17,7 @@ public class ItemDaoFileImpl implements ItemDao {
 
     }
 
-    public ItemDaoFileImpl(String dvdLibraryTextFile)
+    public ItemDaoFileImpl(String vendingMachineTestFile)
     {
         VENDING_MACHINE_FILE = "vendingMachineTestFile.txt";
 
@@ -29,11 +29,16 @@ public class ItemDaoFileImpl implements ItemDao {
     //Writes the data from memory to a file
     private String marshallItem(Item aItem)
     {
-        return String.format("%s%s%s",
+        return String.format("%s%s%s%s%s%s%s",
                 aItem.getItemId(),
                 DELIMITER,
-                aItem.getTitle()
-        );
+                aItem.getTitle(),
+                DELIMITER,
+                aItem.getPrice(),
+                DELIMITER,
+                aItem.getQuantity());
+
+
     }
 
 
@@ -92,7 +97,7 @@ public class ItemDaoFileImpl implements ItemDao {
         while (scanner.hasNextLine()) {
             // get the next line in the file
             currentLine = scanner.nextLine();
-            // unmarshall the line into a Dvd
+            // unmarshall the line into a item
             currentItem = unmarshallItem(currentLine);
 
             // We are going to use the item id as the map key for our item object.
@@ -110,24 +115,19 @@ public class ItemDaoFileImpl implements ItemDao {
         String[] itemTokens = itemAsText.split(DELIMITER);
 
         // Index 0 - ID
-        String dvdId = itemTokens[0];
-        Item itemFromFile = new Item(dvdId);
+        String itemId = itemTokens[0];
+        Item itemFromFile = new Item(itemId);
 
         // Index 1 - title
         itemFromFile.setTitle(itemTokens[1]);
 
+        // Index 2 - price
+        itemFromFile.setPrice(new BigDecimal(itemTokens[2]));
+
+        // Index 3 - quantity
+        itemFromFile.setQuantity(Integer.parseInt(itemTokens[3]));
+
         return itemFromFile;
-    }
-
-
-    @Override
-    public Item addItem(String itemId, Item item) throws ItemPersistenceException
-    {
-        loadLibrary();
-        Item newItem = ITEMS.put(itemId, item);
-        writeLibrary();
-        return newItem;
-
     }
 
 
@@ -147,26 +147,24 @@ public class ItemDaoFileImpl implements ItemDao {
         return ITEMS.get(itemId);
     }
 
-
-
     @Override
-    public Item removeItem(String itemId) throws ItemPersistenceException
+    public Item addItem(Item item) throws ItemPersistenceException
     {
         loadLibrary();
-        Item removedItem = ITEMS.remove(itemId);
+        ITEMS.put(item.getItemId(), item);
         writeLibrary();
-        return removedItem;
+        return item;
     }
 
-    @Override
-    public Item updateItem(String itemId, Item editedItem) throws ItemPersistenceException
-    {
 
+    @Override
+    public void updateItemQuantity(Item editedItem) throws ItemPersistenceException
+    {
         loadLibrary();
-        ITEMS.get(itemId).setTitle(editedItem.getTitle());
+        editedItem.setQuantity(editedItem.getQuantity() - 1);
+        ITEMS.put(editedItem.getItemId(), editedItem);
         writeLibrary();
-        //return the updated item
-        return ITEMS.get(itemId);
+
     }
 }
 

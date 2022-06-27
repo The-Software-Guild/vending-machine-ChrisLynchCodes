@@ -17,6 +17,7 @@ public class VendingMachineServiceLayerImplTest {
     //test service layer business logic and validation8 rules for the service layer
     private VendingMachineServiceLayer service;
 
+
     public VendingMachineServiceLayerImplTest()
     {
         ItemDao dao = new ItemDaoStubImpl();
@@ -43,10 +44,11 @@ public class VendingMachineServiceLayerImplTest {
     {
         //itemId 3 has quantity = 0 in the stub
         String itemId = "3";
-        BigDecimal userBalance = new BigDecimal("3.00");
+        BigDecimal sessionBalance = new BigDecimal("3.00");
 
         try {
-            service.buyItemFromVendingMachine(itemId, userBalance);
+            service.addToSessionBalance(sessionBalance);
+            service.buyItemFromVendingMachine(itemId);
             //If the call executes and no exception is thrown
             fail("Expected ItemNoInventory Exception was not thrown.");
         } catch (ItemPersistenceException | VendingMachineInsufficientFundsException e) {
@@ -62,28 +64,38 @@ public class VendingMachineServiceLayerImplTest {
     {
         //itemId 1 has price = $0.99 in the stub
         String itemId = "1";
-        BigDecimal userBalance = new BigDecimal("0.50");
+        BigDecimal sessionBalance = new BigDecimal("0.50");
         try {
-            service.buyItemFromVendingMachine(itemId, userBalance);
+            service.addToSessionBalance(sessionBalance);
+            service.buyItemFromVendingMachine(itemId);
             //If the call executes and no exception is thrown
             fail("Expected VendingMachineInsufficientFundsException Exception was not thrown.");
         } catch (ItemPersistenceException | ItemNoItemInventoryException e) {
             // ASSERT
             fail("Incorrect exception was thrown.");
         } catch (VendingMachineInsufficientFundsException e) {
-            assertEquals("ERROR: Insufficient funds for item " + itemId, e.getMessage());
+            assertEquals("Insufficient funds for item " + itemId + " Please insert $0.49", e.getMessage());
         }
 
+    }
+
+    @Test
+    void getChange()
+    {
+        BigDecimal sessionBalance = new BigDecimal("3.00");
+        BigDecimal itemPrice = new BigDecimal("0.99");
+        String changeString = Change.getChange(sessionBalance, itemPrice);
     }
 
     @Test
     void buyItemFromVendingMachineNoChangeReceived()
     {
         String itemId = "1";
-        BigDecimal userBalance = new BigDecimal("0.99");
+        BigDecimal sessionBalance = new BigDecimal("0.99");
 
         try {
-            service.buyItemFromVendingMachine(itemId, userBalance);
+            service.addToSessionBalance(sessionBalance);
+            service.buyItemFromVendingMachine(itemId);
             assertEquals(9, service.getAllItems().get(0).getQuantity());
         } catch (ItemPersistenceException | ItemNoItemInventoryException | VendingMachineInsufficientFundsException e) {
             fail("Item was valid no exception should have been thrown");
@@ -97,39 +109,38 @@ public class VendingMachineServiceLayerImplTest {
         //itemId 1 has quantity = 10 in the stub
         //itemId 1 has price = $0.99 in the stub
         String itemId = "1";
-        BigDecimal userBalance = new BigDecimal("3.00");
+        BigDecimal sessionBalance = new BigDecimal("3.00");
 
         try {
-            service.buyItemFromVendingMachine(itemId, userBalance);
+            service.addToSessionBalance(sessionBalance);
+            service.buyItemFromVendingMachine(itemId);
             assertEquals(9, service.getAllItems().get(0).getQuantity());
-            assertEquals("Change:2 DOLLAR 0 FIFTY 0 QUARTER 1 PENNY", Change.getChange(userBalance, service.getAllItems().get(0).getPrice()));
+            assertEquals("Change:2 DOLLAR 0 FIFTY 0 QUARTER 1 PENNY", Change.getChange(sessionBalance, service.getAllItems().get(0).getPrice()));
         } catch (ItemPersistenceException | ItemNoItemInventoryException | VendingMachineInsufficientFundsException e) {
             fail("Item was valid no exception should have been thrown");
         }
 
 
-
-
     }
 
-    @Test
-    void addValidItemToVendingMachine()
-    {
-        //Item with id 1 already exists via dao test stub
-        //Item with id 2 already exists via dao test stub
-        Item item = new Item("3");
-        item.setTitle("Water");
-        item.setPrice(new BigDecimal("0.99"));
-        item.setQuantity(10);
-
-        try {
-            service.addItemToVendingMachine(item);
-        } catch (ItemDuplicateIdException | ItemDataValidationException | ItemPersistenceException e) {
-
-            fail("Item was valid no exception should have been thrown");
-        }
-
-    }
+//    @Test
+//    void addValidItemToVendingMachine()
+//    {
+//        //Item with id 1 already exists via dao test stub
+//        //Item with id 2 already exists via dao test stub
+//        Item item = new Item("3");
+//        item.setTitle("Water");
+//        item.setPrice(new BigDecimal("0.99"));
+//        item.setQuantity(10);
+//
+//        try {
+//            service.addItemToVendingMachine(item);
+//        } catch (ItemDuplicateIdException | ItemDataValidationException | ItemPersistenceException e) {
+//
+//            fail("Item was valid no exception should have been thrown");
+//        }
+//
+//    }
 
 
 }

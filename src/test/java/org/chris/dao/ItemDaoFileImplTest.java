@@ -30,7 +30,7 @@ class ItemDaoFileImplTest {
     {
     }
 
-    //before every test runs, we will have created a new blank vendingMachineTextFile.txt file using the FileWriter.
+    //before every test runs, we will have created a new blank vendingMachine.txt file using the FileWriter.
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -55,9 +55,12 @@ class ItemDaoFileImplTest {
         String itemId = "1";
         Item item = new Item(itemId);
         item.setTitle("Apple");
-
+        item.setPrice(new BigDecimal("0.75"));
+        item.setQuantity(5);
+        //create second item
         // Add item to DAO
-        testDao.addItem(itemId, item);
+        testDao.addItem(item);
+
         Item retrievedItem = testDao.getItem(itemId);
 
         // Verify that they are the same item
@@ -76,7 +79,7 @@ class ItemDaoFileImplTest {
         item.setTitle("Apple");
         item.setPrice(new BigDecimal("0.75"));
         item.setQuantity(5);
-                //create second item
+        //create second item
         String itemId2 = "2";
         Item item2 = new Item(itemId2);
         item2.setTitle("Banana");
@@ -89,10 +92,10 @@ class ItemDaoFileImplTest {
         item3.setPrice(new BigDecimal("0.00"));
         item3.setQuantity(5);
 
-     //add items to dao
-        testDao.addItem(itemId, item);
-        testDao.addItem(itemId2, item2);
-        testDao.addItem(itemId3, item3);
+        //add items to dao
+        testDao.addItem(item);
+        testDao.addItem(item2);
+        testDao.addItem(item3);
         //get all items from dao
         List<Item> allItems = testDao.getITEMS();
         //verify not null
@@ -111,71 +114,47 @@ class ItemDaoFileImplTest {
 
     }
 
+
     @Test
-    void addRemoveItem() throws Exception
+    public void addUpdateItemQuantity() throws ItemPersistenceException
     {
+
         //create first item
         String itemId = "1";
         Item item = new Item(itemId);
         item.setTitle("Apple");
+        item.setPrice(new BigDecimal("0.75"));
+        item.setQuantity(5);
         //create second item
         String itemId2 = "2";
         Item item2 = new Item(itemId2);
         item2.setTitle("Banana");
+        item2.setPrice(new BigDecimal("0.75"));
+        item2.setQuantity(5);
 
-
-        //Add to dao
-        testDao.addItem(itemId, item);
-        testDao.addItem(itemId2, item2);
-
-
-        //Remove item from dao
-        Item removedItem = testDao.removeItem(itemId);
-
-        //Verify removed item
-
-        assertEquals(item.getItemId(), removedItem.getItemId(), "The removed DVD must have an ID of 1");
-
-        //Verify item is no longer in dao
-        List<Item> allItems = testDao.getITEMS();
-
-        assertNotNull(allItems, "The list of items must not be null");
-        assertEquals(1, allItems.size(), "The list of items must contain 1 item");
-        assertEquals(item2.getItemId(), allItems.get(0).getItemId(), "The first item in the list must have an ID of 2");
-        assertFalse(allItems.contains(item), "The list should not contain the removed item");
-
-    }
-
-    @Test
-    void addUpdateItem() throws Exception
-    {
-        //create first item
-        String itemId = "1";
-        Item item = new Item(itemId);
-        item.setTitle("Apple");
-        //create second item
-        String itemId2 = "2";
-        Item item2 = new Item(itemId2);
-        item2.setTitle("Banana");
         //add items to dao
-        testDao.addItem(itemId, item);
-        testDao.addItem(itemId2, item2);
-
-        //update & get item from dao
-        item.setTitle("Cherry");
-        Item retrievedItem = testDao.updateItem(itemId, item);
+        testDao.addItem(item);
+        testDao.addItem(item2);
 
 
-        //verify item is equal to item
-        assertEquals(item.getItemId(), retrievedItem.getItemId());
-        assertEquals(item.getTitle(), retrievedItem.getTitle());
+        //update item quantity
+        testDao.updateItemQuantity(item);
+        //Get all items
+        List<Item> allItems = testDao.getITEMS();
+        //verify not null
+        assertNotNull(allItems);
+        //verify size is 2
+        assertEquals(2, allItems.size());
+        //verify item1 is equal to item1
+        assertEquals(item.getItemId(), allItems.get(0).getItemId());
+        //verify 1 has been removed from quantity
+        assertEquals(4, allItems.get(0).getQuantity());
+        //verify item2 is equal to item2
+        assertEquals(item2.getItemId(), allItems.get(1).getItemId());
+        assertEquals(5, allItems.get(1).getQuantity());
 
 
     }
-//    @Test
-//    void searchDvdByTitle()
-//    {
-//
-//    }
+
 
 }
