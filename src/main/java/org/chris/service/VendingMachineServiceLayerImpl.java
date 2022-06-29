@@ -7,6 +7,7 @@ import org.chris.dto.Change;
 import org.chris.dto.Item;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -14,38 +15,37 @@ import java.util.List;
 public class VendingMachineServiceLayerImpl implements VendingMachineServiceLayer {
 
 
-
-
-    private ItemDao itemDao;
-    private VendingMachineAuditDao auditDao;
+    private final ItemDao ITEM_DAO;
+    private final VendingMachineAuditDao AUDIT_DAO;
     private BigDecimal sessionBalance;
 
-    public VendingMachineServiceLayerImpl(ItemDao itemDao, VendingMachineAuditDao auditDao)
+    public VendingMachineServiceLayerImpl(ItemDao ITEM_DAO, VendingMachineAuditDao AUDIT_DAO)
     {
-        this.itemDao = itemDao;
-        this.auditDao = auditDao;
-        sessionBalance = new BigDecimal("0.00");
+        this.ITEM_DAO = ITEM_DAO;
+        this.AUDIT_DAO = AUDIT_DAO;
+        sessionBalance = new BigDecimal("0.00").setScale(2, RoundingMode.HALF_UP);
     }
 
     //buy item from vending machine
     public String buyItemFromVendingMachine(String itemId) throws ItemPersistenceException, ItemNoItemInventoryException, VendingMachineInsufficientFundsException
     {
-        Item item = itemDao.getItem(itemId);
+        Item item = ITEM_DAO.getItem(itemId);
         String change;
         if (item == null) {
             throw new ItemNoItemInventoryException("ERROR: Item " + itemId + " not found");
         }
-
+        if (item.getQuantity() == 0) {
+            throw new ItemNoItemInventoryException("ERROR: Item " + itemId + " is out of stock");
+        }
         if (item.getPrice().compareTo(sessionBalance) > 0) {
             throw new VendingMachineInsufficientFundsException("Insufficient funds for item " + itemId + " Please insert $" + (item.getPrice().subtract(sessionBalance)));
 
         } else {
 
-            itemDao.updateItemQuantity(item);
+            updateItemQuantity(item);
             //if audi
-            if(item.getQuantity() <= 0)
-            {
-                auditDao.writeAuditEntry("LOW STOCK:" + LocalDate.now() +  " " + item.getItemId() + " " + item.getTitle() + " Stock Available " + item.getQuantity());
+            if (item.getQuantity() <= 3) {
+                AUDIT_DAO.writeAuditEntry("LOW STOCK:" + LocalDate.now() + " " + item.getITEM_ID() + " " + item.getTitle() + " Stock Available " + item.getQuantity());
             }
 
             //return change as string to be displayed on screen and update session balance
@@ -53,10 +53,17 @@ public class VendingMachineServiceLayerImpl implements VendingMachineServiceLaye
             sessionBalance = sessionBalance.subtract(item.getPrice());
 
 
-            auditDao.writeAuditEntry("SOLD:" + LocalDate.now() +  " " + item.getItemId() + " " + item.getTitle() + " " + item.getPrice());
-            System.out.println(change);
+            AUDIT_DAO.writeAuditEntry("SOLD:" + LocalDate.now() + " " + item.getITEM_ID() + " " + item.getTitle() + " " + item.getPrice());
+
         }
         return change;
+    }
+
+    @Override
+    public void updateItemQuantity(Item item) throws ItemPersistenceException
+    {
+        item.setQuantity(item.getQuantity() - 1);
+        ITEM_DAO.updateItem(item);
     }
 
 
@@ -64,10 +71,9 @@ public class VendingMachineServiceLayerImpl implements VendingMachineServiceLaye
     @Override
     public List<Item> getAllItems() throws ItemPersistenceException
     {
-
-        return itemDao.getITEMS().stream()
+        return ITEM_DAO.getItems().stream()
                 .filter(item -> item.getQuantity() > 0)
-                .sorted(Comparator.comparing((i -> Integer.parseInt(i.getItemId()))))
+                .sorted(Comparator.comparing((i -> Integer.parseInt(i.getITEM_ID()))))
                 .collect(java.util.stream.Collectors.toList());
 
     }
@@ -76,7 +82,7 @@ public class VendingMachineServiceLayerImpl implements VendingMachineServiceLaye
     public BigDecimal addToSessionBalance(BigDecimal amount) throws ItemPersistenceException
     {
         sessionBalance = sessionBalance.add(amount);
-        auditDao.writeAuditEntry("MONEY ADDED:" + LocalDate.now() +  " " + amount);
+        AUDIT_DAO.writeAuditEntry("MONEY ADDED:" + LocalDate.now() + " " + amount);
         return sessionBalance;
     }
 
@@ -85,27 +91,6 @@ public class VendingMachineServiceLayerImpl implements VendingMachineServiceLaye
     {
         return sessionBalance;
     }
-
-
-    private void validateItemData(Item item) throws ItemDataValidationException
-    {
-        if (item.getItemId() == null || item.getItemId().length() == 0) {
-            throw new ItemDataValidationException("Item Id is required.");
-        }
-        if (item.getTitle() == null || item.getTitle().length() == 0) {
-            throw new ItemDataValidationException("Title is required.");
-        }
-        if (item.getQuantity() < 0) {
-            throw new ItemDataValidationException("Quantity is required.");
-        }
-
-        if (item.getPrice() == null) {
-            throw new ItemDataValidationException("Cost is required.");
-        }
-
-    }
-
-
 
 
 }

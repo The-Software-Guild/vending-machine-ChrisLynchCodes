@@ -16,7 +16,7 @@ public interface VendingMachineServiceLayer {
 
     String buyItemFromVendingMachine(String itemId) throws ItemPersistenceException, ItemNoItemInventoryException, VendingMachineInsufficientFundsException;
 
+    void updateItemQuantity(Item item) throws ItemPersistenceException;
 
-    //get all items in vending machine
     List<Item> getAllItems() throws ItemPersistenceException;
 }

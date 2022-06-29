@@ -45,12 +45,12 @@ public class ItemDaoStubImpl implements ItemDao {
     @Override
     public Item addItem(Item itemToAdd) throws ItemPersistenceException
     {
-        if (itemToAdd.getItemId().equals(item.getItemId())) return item;
+        if (itemToAdd.getITEM_ID().equals(item.getITEM_ID())) return item;
         return null;
     }
 
     @Override
-    public List<Item> getITEMS() throws ItemPersistenceException
+    public List<Item> getItems() throws ItemPersistenceException
     {
         List<Item> items = new ArrayList<>();
         items.add(item);
@@ -61,16 +61,17 @@ public class ItemDaoStubImpl implements ItemDao {
     @Override
     public Item getItem(String itemId) throws ItemPersistenceException
     {
-        if (itemId.equals(item.getItemId()))
+        if (itemId.equals(item.getITEM_ID()))
             return item;
         return null;
     }
 
 
     @Override
-    public void updateItemQuantity(Item editedItem) throws ItemPersistenceException
+    public void updateItem(Item editedItem) throws ItemPersistenceException
     {
-        item.setQuantity(item.getQuantity() - 1);
+        if (editedItem.getITEM_ID().equals(item.getITEM_ID()))
+            item = editedItem;
 
 
     }

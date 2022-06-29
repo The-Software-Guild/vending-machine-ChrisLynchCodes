@@ -16,7 +16,6 @@ public class VendingMachineView {
     public int printMenuAndGetSelection()
     {
         io.print("Main Menu");
-
         io.print("1. Insert Money");
         io.print("2. Show Items");
         io.print("3. Buy Item");
@@ -24,7 +23,7 @@ public class VendingMachineView {
         io.print("5. Exit");
 
 
-        return io.readInt("Please select from the above choices.", 1,5 );
+        return io.readInt("Please select from the above choices.", 1, 5);
     }
 
 
@@ -32,24 +31,25 @@ public class VendingMachineView {
     {
         return io.readString("Please enter the amount of money you wish to insert e.g. 0.99/2.50/9.99");
     }
-public void successfulPurchase(String output){
 
-}
+
     public void displayErrorMessage(String errorMsg)
     {
         io.print("=== ERROR ===");
         io.print(errorMsg);
     }
+
     public void printBalance(BigDecimal balance)
     {
         io.print("Your balance is: $" + balance);
     }
+
     public void displayItemList(List<Item> itemList)
     {
         for (Item currentItem : itemList) {
 
             //using string.format
-            String itemInfo = String.format("\n[%s]Name-%s - Price:$%s", currentItem.getItemId(), currentItem.getTitle(), currentItem.getPrice());
+            String itemInfo = String.format("\n[%s]Name-%s - Price:$%s", currentItem.getITEM_ID(), currentItem.getTitle(), currentItem.getPrice());
 
             io.print(itemInfo.toString());
         }
@@ -64,21 +64,26 @@ public void successfulPurchase(String output){
 
 
     //////////Banners/////////
-    public void displayExitBanner()
+    public void displayExitBanner(BigDecimal balance)
     {
-        io.print("Good Bye!!!");
+        if (balance.compareTo(BigDecimal.ZERO) == 0) {
+            io.print("Thank you for shopping at the Vending Machine!");
+        } else {
+            io.print("Thank you for shopping at the Vending Machine! Your change is: $" + balance);
+        }
+
     }
+
 
     public void displayUnknownCommandBanner()
     {
         io.print("Unknown Command!!!");
     }
 
-    public void displayWelcome()
+    public void successfulPurchase(String output)
     {
-        io.print("=== Welcome Please view the selection ===");
+        io.print(output);
     }
-
 
 
 }

@@ -1,26 +1,24 @@
 package org.chris.contoller;
 
 import org.chris.dao.ItemPersistenceException;
-import org.chris.dto.Item;
 import org.chris.service.ItemNoItemInventoryException;
 import org.chris.service.VendingMachineInsufficientFundsException;
 import org.chris.service.VendingMachineServiceLayer;
 import org.chris.ui.VendingMachineView;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public class VendingMachineController {
 
-    private final VendingMachineView view;
+    private final VendingMachineView VIEW;
 
-    private final VendingMachineServiceLayer service;
+    private final VendingMachineServiceLayer SERVICE;
 
 
-    public VendingMachineController(VendingMachineServiceLayer service, VendingMachineView view)
+    public VendingMachineController(VendingMachineServiceLayer SERVICE, VendingMachineView VIEW)
     {
-        this.view = view;
-        this.service = service;
+        this.VIEW = VIEW;
+        this.SERVICE = SERVICE;
     }
 
     public void run()
@@ -31,8 +29,6 @@ public class VendingMachineController {
         try {
             displayItemList();
             while (keepGoing) {
-
-
                 menuSelection = getMenuSelection();
 
                 switch (menuSelection) {
@@ -46,69 +42,66 @@ public class VendingMachineController {
             }
             exitMessage();
         } catch (ItemPersistenceException | ItemNoItemInventoryException | VendingMachineInsufficientFundsException e) {
-            view.displayErrorMessage(e.getMessage());
+            VIEW.displayErrorMessage(e.getMessage());
         }
 
     }
 
-    private void showItems()
-    {
-    }
-
     private void viewBalance()
     {
-        BigDecimal balance = service.getSessionBalance();
-        view.printBalance(balance);
+        BigDecimal balance = SERVICE.getSessionBalance();
+        VIEW.printBalance(balance);
     }
-
 
     private void insertMoney() throws ItemPersistenceException
     {
+        String money = VIEW.getUserMoney();
+        try {
+            BigDecimal balance = SERVICE.addToSessionBalance(new BigDecimal(money));
+        } catch (NumberFormatException e) {
+            VIEW.displayErrorMessage("Invalid input - please enter a numerical value.");
+        }
 
-        String money = view.getUserMoney();
-        BigDecimal balance = service.addToSessionBalance(new BigDecimal(money));
-        view.printBalance(balance);
     }
 
     private void buyItem() throws ItemPersistenceException, VendingMachineInsufficientFundsException, ItemNoItemInventoryException
     {
         try {
-            String itemChoice = view.getItemChoice();
+            String itemChoice = VIEW.getItemChoice();
             if (itemChoice.equals("")) {
-                view.displayErrorMessage("Please enter an item number.");
+                VIEW.displayErrorMessage("Please enter an item number.");
             } else if (itemChoice.equals("0")) {
                 this.run();
             } else {
-                String response = service.buyItemFromVendingMachine(itemChoice);
-                view.successfulPurchase(response);
+                String response = SERVICE.buyItemFromVendingMachine(itemChoice);
+                VIEW.successfulPurchase(response);
             }
 
         } catch (ItemPersistenceException | VendingMachineInsufficientFundsException | ItemNoItemInventoryException e) {
-            view.displayErrorMessage(e.getMessage());
+            VIEW.displayErrorMessage(e.getMessage());
 
         }
-
 
     }
 
     private void displayItemList() throws ItemPersistenceException
     {
 
-        view.displayItemList(service.getAllItems());
+        VIEW.displayItemList(SERVICE.getAllItems());
     }
 
     private void unknownCommand()
     {
-        view.displayUnknownCommandBanner();
+        VIEW.displayUnknownCommandBanner();
     }
 
     private void exitMessage()
     {
-        view.displayExitBanner();
+        VIEW.displayExitBanner(SERVICE.getSessionBalance());
     }
 
     private int getMenuSelection()
     {
-        return view.printMenuAndGetSelection();
+        return VIEW.printMenuAndGetSelection();
     }
 }

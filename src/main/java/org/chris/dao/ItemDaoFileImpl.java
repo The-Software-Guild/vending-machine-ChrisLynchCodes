@@ -10,6 +10,12 @@ public class ItemDaoFileImpl implements ItemDao {
     private final Map<String, Item> ITEMS = new HashMap<>();
     private final String VENDING_MACHINE_FILE;
     private static final String DELIMITER = "::";
+    private static  enum ColumnNames {
+        ITEM_ID,
+        TITLE,
+        PRICE,
+        QUANTITY
+    }
 
     public ItemDaoFileImpl()
     {
@@ -30,7 +36,7 @@ public class ItemDaoFileImpl implements ItemDao {
     private String marshallItem(Item aItem)
     {
         return String.format("%s%s%s%s%s%s%s",
-                aItem.getItemId(),
+                aItem.getITEM_ID(),
                 DELIMITER,
                 aItem.getTitle(),
                 DELIMITER,
@@ -57,15 +63,16 @@ public class ItemDaoFileImpl implements ItemDao {
 
 
         String itemAsText;
-        List<Item> itemList = this.getITEMS();
+        List<Item> itemList = this.getItems();
         for (Item currentItem : itemList) {
             // turn an item into a String
             itemAsText = marshallItem(currentItem);
             // write the item object to the file
             out.println(itemAsText);
-            // force PrintWriter to write line to the file
-            out.flush();
+
         }
+        // force PrintWriter to write line to the file
+        out.flush();
         // Clean up
         out.close();
     }
@@ -102,7 +109,7 @@ public class ItemDaoFileImpl implements ItemDao {
 
             // We are going to use the item id as the map key for our item object.
             // Put currentItem into the map using item id as the key
-            ITEMS.put(currentItem.getItemId(), currentItem);
+            ITEMS.put(currentItem.getITEM_ID(), currentItem);
         }
         // close scanner
         scanner.close();
@@ -114,25 +121,26 @@ public class ItemDaoFileImpl implements ItemDao {
 
         String[] itemTokens = itemAsText.split(DELIMITER);
 
+        //get the index of the column names to pass into itemTokens
         // Index 0 - ID
-        String itemId = itemTokens[0];
+        String itemId = itemTokens[ColumnNames.valueOf("ITEM_ID").ordinal()];
         Item itemFromFile = new Item(itemId);
 
         // Index 1 - title
-        itemFromFile.setTitle(itemTokens[1]);
+        itemFromFile.setTitle(itemTokens[ColumnNames.valueOf("TITLE").ordinal()]);
 
         // Index 2 - price
-        itemFromFile.setPrice(new BigDecimal(itemTokens[2]));
+        itemFromFile.setPrice(new BigDecimal(itemTokens[ColumnNames.valueOf("PRICE").ordinal()]));
 
         // Index 3 - quantity
-        itemFromFile.setQuantity(Integer.parseInt(itemTokens[3]));
+        itemFromFile.setQuantity(Integer.parseInt(itemTokens[ColumnNames.valueOf("QUANTITY").ordinal()]));
 
         return itemFromFile;
     }
 
 
     @Override
-    public List<Item> getITEMS() throws ItemPersistenceException
+    public List<Item> getItems() throws ItemPersistenceException
     {
         loadLibrary();
         return new ArrayList<>(ITEMS.values());
@@ -151,18 +159,16 @@ public class ItemDaoFileImpl implements ItemDao {
     public Item addItem(Item item) throws ItemPersistenceException
     {
         loadLibrary();
-        ITEMS.put(item.getItemId(), item);
+        ITEMS.put(item.getITEM_ID(), item);
         writeLibrary();
         return item;
     }
 
-
     @Override
-    public void updateItemQuantity(Item editedItem) throws ItemPersistenceException
+    public void updateItem(Item editedItem) throws ItemPersistenceException
     {
         loadLibrary();
-        editedItem.setQuantity(editedItem.getQuantity() - 1);
-        ITEMS.put(editedItem.getItemId(), editedItem);
+        ITEMS.put(editedItem.getITEM_ID(), editedItem);
         writeLibrary();
 
     }

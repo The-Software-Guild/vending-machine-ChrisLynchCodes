@@ -27,26 +27,26 @@ public class Change {
             changeString = "No change";
         } else {
 
-            int[] currenyCount = new int[4];
+            int[] currencyCount = new int[4];
 
             if (change.compareTo(Denomination.DOLLAR.currencyValue) >= 0) {
-                currenyCount[0] = change.divide(Denomination.DOLLAR.currencyValue, RoundingMode.HALF_UP).intValue();
-                change = change.subtract(Denomination.DOLLAR.currencyValue.multiply(new BigDecimal(currenyCount[0])));
+                currencyCount[Denomination.valueOf("DOLLAR").ordinal()] = change.divide(Denomination.DOLLAR.currencyValue, RoundingMode.HALF_UP).intValue();
+                change = change.subtract(Denomination.DOLLAR.currencyValue.multiply(new BigDecimal(currencyCount[0])));
             }
             if (change.compareTo(Denomination.FIFTY.currencyValue) >= 0) {
-                currenyCount[1] = change.divide(Denomination.FIFTY.currencyValue, RoundingMode.HALF_UP).intValue();
-                change = change.subtract(Denomination.FIFTY.currencyValue.multiply(new BigDecimal(currenyCount[1])));
+                currencyCount[Denomination.valueOf("FIFTY").ordinal()] = change.divide(Denomination.FIFTY.currencyValue, RoundingMode.HALF_UP).intValue();
+                change = change.subtract(Denomination.FIFTY.currencyValue.multiply(new BigDecimal(currencyCount[1])));
             }
-            if (change.compareTo(Denomination.DOLLAR.currencyValue) >= 0) {
-                currenyCount[2] = change.divide(Denomination.DOLLAR.currencyValue, RoundingMode.HALF_UP).intValue();
-                change = change.subtract(Denomination.DOLLAR.currencyValue.multiply(new BigDecimal(currenyCount[2])));
+            if (change.compareTo(Denomination.QUARTER.currencyValue) >= 0) {
+                currencyCount[Denomination.valueOf("QUARTER").ordinal()] = change.divide(Denomination.QUARTER.currencyValue, RoundingMode.HALF_UP).intValue();
+                change = change.subtract(Denomination.QUARTER.currencyValue.multiply(new BigDecimal(currencyCount[2])));
             }
             if (change.compareTo(Denomination.PENNY.currencyValue) >= 0) {
-                currenyCount[3] = change.divide(Denomination.PENNY.currencyValue, RoundingMode.HALF_UP).intValue();
-                change = change.subtract(Denomination.PENNY.currencyValue.multiply(new BigDecimal(currenyCount[3])));
+                currencyCount[Denomination.valueOf("PENNY").ordinal()] = change.divide(Denomination.PENNY.currencyValue, RoundingMode.HALF_UP).intValue();
+                change = change.subtract(Denomination.PENNY.currencyValue.multiply(new BigDecimal(currencyCount[3])));
             }
-            changeString = "Change:" + currenyCount[0] + " " + Denomination.DOLLAR + " " + currenyCount[1] + " " + Denomination.FIFTY + " "
-                    + currenyCount[2] + " " + Denomination.QUARTER + " " + currenyCount[3] + " " + Denomination.PENNY;
+            changeString = "Change:" + currencyCount[Denomination.valueOf("DOLLAR").ordinal()] + " " + Denomination.DOLLAR + " " + currencyCount[Denomination.valueOf("FIFTY").ordinal()] + " " + Denomination.FIFTY + " "
+                    + currencyCount[Denomination.valueOf("QUARTER").ordinal()] + " " + Denomination.QUARTER + " " + currencyCount[Denomination.valueOf("PENNY").ordinal()] + " " + Denomination.PENNY;
 
         }
 

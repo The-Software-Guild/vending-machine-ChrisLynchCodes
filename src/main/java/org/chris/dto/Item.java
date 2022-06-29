@@ -5,22 +5,22 @@ import java.math.BigDecimal;
 public class Item {
 
     //Instance Variables
-    private  String itemId;
+    private final String ITEM_ID;
     private String title;
     private BigDecimal price;
     private int quantity;
 
-    //Constructors
-    public Item(String itemId)
+    //Constructor
+    public Item(String ITEM_ID)
     {
-        this.itemId = itemId;
+        this.ITEM_ID = ITEM_ID;
     }
 
 
     //Getters and Setters
-    public String getItemId()
+    public String getITEM_ID()
     {
-        return itemId;
+        return ITEM_ID;
     }
 
     public String getTitle()

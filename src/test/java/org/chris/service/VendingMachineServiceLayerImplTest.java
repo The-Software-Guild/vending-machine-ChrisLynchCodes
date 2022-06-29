@@ -24,6 +24,13 @@ public class VendingMachineServiceLayerImplTest {
         VendingMachineAuditDao auditDao = new VendingMachineAuditDaoStubImpl();
         service = new VendingMachineServiceLayerImpl(dao, auditDao);
     }
+    @Test
+    void getChange()
+    {
+        BigDecimal sessionBalance = new BigDecimal("3.00");
+        BigDecimal itemPrice = new BigDecimal("0.99");
+        String changeString = Change.getChange(sessionBalance, itemPrice);
+    }
 
 
     @Test
@@ -32,8 +39,8 @@ public class VendingMachineServiceLayerImplTest {
         List<Item> items = service.getAllItems();
         //2 items should be returned as one has a quantity of 0
         assertEquals(2, items.size(), "Incorrect number of items returned.");
-        assertEquals("1", items.get(0).getItemId(), "Incorrect item returned.");
-        assertEquals("2", items.get(1).getItemId(), "Incorrect item returned.");
+        assertEquals("1", items.get(0).getITEM_ID(), "Incorrect item returned.");
+        assertEquals("2", items.get(1).getITEM_ID(), "Incorrect item returned.");
         assertTrue(items.get(0).getQuantity() > 0, "Item should have a positive quantity.");
         assertTrue(items.get(1).getQuantity() > 0, "Item should have a positive quantity.");
 
@@ -79,13 +86,7 @@ public class VendingMachineServiceLayerImplTest {
 
     }
 
-    @Test
-    void getChange()
-    {
-        BigDecimal sessionBalance = new BigDecimal("3.00");
-        BigDecimal itemPrice = new BigDecimal("0.99");
-        String changeString = Change.getChange(sessionBalance, itemPrice);
-    }
+
 
     @Test
     void buyItemFromVendingMachineNoChangeReceived()
@@ -123,24 +124,6 @@ public class VendingMachineServiceLayerImplTest {
 
     }
 
-//    @Test
-//    void addValidItemToVendingMachine()
-//    {
-//        //Item with id 1 already exists via dao test stub
-//        //Item with id 2 already exists via dao test stub
-//        Item item = new Item("3");
-//        item.setTitle("Water");
-//        item.setPrice(new BigDecimal("0.99"));
-//        item.setQuantity(10);
-//
-//        try {
-//            service.addItemToVendingMachine(item);
-//        } catch (ItemDuplicateIdException | ItemDataValidationException | ItemPersistenceException e) {
-//
-//            fail("Item was valid no exception should have been thrown");
-//        }
-//
-//    }
 
 
 }

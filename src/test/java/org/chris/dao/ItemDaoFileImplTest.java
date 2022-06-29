@@ -6,8 +6,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.FileWriter;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +62,7 @@ class ItemDaoFileImplTest {
         Item retrievedItem = testDao.getItem(itemId);
 
         // Verify that they are the same item
-        assertEquals(item.getItemId(), retrievedItem.getItemId());
+        assertEquals(item.getITEM_ID(), retrievedItem.getITEM_ID());
 
     }
 
@@ -97,19 +95,19 @@ class ItemDaoFileImplTest {
         testDao.addItem(item2);
         testDao.addItem(item3);
         //get all items from dao
-        List<Item> allItems = testDao.getITEMS();
+        List<Item> allItems = testDao.getItems();
         //verify not null
         assertNotNull(allItems);
         //verify size is 3
         assertEquals(3, allItems.size());
         //verify item1 is equal to item1
-        assertEquals(item.getItemId(), allItems.get(0).getItemId());
+        assertEquals(item.getITEM_ID(), allItems.get(0).getITEM_ID());
         assertEquals(item.getTitle(), allItems.get(0).getTitle());
         //verify item2 is equal to item2
-        assertEquals(item2.getItemId(), allItems.get(1).getItemId());
+        assertEquals(item2.getITEM_ID(), allItems.get(1).getITEM_ID());
         assertEquals(item2.getTitle(), allItems.get(1).getTitle());
         //verify item3 is equal to item3
-        assertEquals(item3.getItemId(), allItems.get(2).getItemId());
+        assertEquals(item3.getITEM_ID(), allItems.get(2).getITEM_ID());
         assertEquals(item3.getTitle(), allItems.get(2).getTitle());
 
     }
@@ -135,22 +133,24 @@ class ItemDaoFileImplTest {
         //add items to dao
         testDao.addItem(item);
         testDao.addItem(item2);
+        item.setQuantity(4);
+
 
 
         //update item quantity
-        testDao.updateItemQuantity(item);
+        testDao.updateItem(item);
         //Get all items
-        List<Item> allItems = testDao.getITEMS();
+        List<Item> allItems = testDao.getItems();
         //verify not null
         assertNotNull(allItems);
         //verify size is 2
         assertEquals(2, allItems.size());
         //verify item1 is equal to item1
-        assertEquals(item.getItemId(), allItems.get(0).getItemId());
+        assertEquals(item.getITEM_ID(), allItems.get(0).getITEM_ID());
         //verify 1 has been removed from quantity
         assertEquals(4, allItems.get(0).getQuantity());
         //verify item2 is equal to item2
-        assertEquals(item2.getItemId(), allItems.get(1).getItemId());
+        assertEquals(item2.getITEM_ID(), allItems.get(1).getITEM_ID());
         assertEquals(5, allItems.get(1).getQuantity());
 
 
